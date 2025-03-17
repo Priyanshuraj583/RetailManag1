@@ -7,24 +7,36 @@ import {
 import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { User } from './app/models/user.model'; // Import the User model
+import cors from 'cors';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
+app.use(cors());
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// Define mock user data
+const users: User[] = [
+  { id: 1, username: 'manager', password: 'manager123', role: 'manager', email: 'manager@example.com' },
+  { id: 2, username: 'supplier', password: 'supplier123', role: 'supplier', email: 'employee@example.com' }
+];
+
+app.use(express.json()); // Middleware to parse JSON bodies
+
+// API endpoint to get users
+app.get('/api/users', (req, res) => {
+  res.json(users);
+});
+
+// API endpoint to add a new user
+app.post('/api/users', (req, res) => {
+  const newUser: User = req.body;
+  newUser.id = users.length + 1;
+  users.push(newUser);
+  res.status(201).json(newUser);
+});
 
 /**
  * Serve static files from /browser
